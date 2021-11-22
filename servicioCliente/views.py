@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework import views, generics, authentication, permissions, status
 from .models import PQR, Soporte, Bank
 from rest_framework.response import Response
-from .serializer import SoporteSerializer, PQRSerializer, BankSerializer
+from .serializer import SoporteSerializer, PQRSerializer, BankSerializer, UserSerializer
 from django.contrib.auth.models import User
+from rest_framework import views, authentication, permissions, status
 
 # Create your views here.
 
@@ -31,12 +32,10 @@ class BankListCreate(generics.ListCreateAPIView):
     serializer_class = BankSerializer
 
 
-class CountUser(views.APIView):
+class UserRetrieve(views.APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    
     def get(self, request):
-        print("Para acceder al body de la peticion es con request.data")
-        queryset = User.objects.all()
-        for user in queryset:
-            print(user.username)
-        con_users = len(queryset)
-        data={"Number of users": con_users}
-        return Response(data=data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
